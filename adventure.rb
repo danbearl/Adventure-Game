@@ -1,391 +1,17 @@
 #TODO: create method that sets limit on line length and inserts line breaks into text 
 #at the nearest word to prevent wrapping words around the screen
 #TODO: Migrate class definitions to external files to clean up code
-#TODO: Create a creatures class to populate the dungeon
-class Rules
+#TODO: Combat!!
+require("./thing.rb")
+require("./rules.rb")
+require("./player.rb")
+require("./creature.rb")
+require("./item.rb")
+require("./room.rb")
+require("./map.rb")
+require("./population.rb")
 
-	def initialize
-		@flag1 = false #Secret door in room0
-	end
-	def self.rules() {	0 => :room0, 
-						1 => :room1, 
-						2 => :room2,
-						3 => :room3,
-						4 => :room4} end
-	def room0
-		#If the gem is placed into the fountain, a secret door opens in room0
-		if $map.rooms[$currentRoom].items[0].contents.include?($item2)
-			if !@flag1
-				puts("A secret door opens to the west!")
-				@flag1 = true
-			end
-			$map.rooms[$currentRoom].west = 4
-		end
-		
-		#If the gem is removed from the fountain, the secret door closes
-		if !$map.rooms[$currentRoom].items[0].contents.include?($item2) and @flag1
-			puts("The secret door closes!")
-			$map.rooms[$currentRoom].west = -1
-			@flag1 = false
-		end
-	end
-	
-	def room1
-	
-	end
-	
-	def room2
-	
-	end
-	
-	def room3
-	
-	end
-	
-	def room4
-	
-	end
-	
-	def check(arg)
-		send self.class.rules[arg]
-	end
-end #Rules
-
-class Player
-	attr_accessor( :name, :inventory)
-	
-	def initialize( aName, someItems )
-		@name = aName
-		@inventory = someItems
-		@capacity = 30
-	end
-	
-	#a method to determine how much more the player can carry
-	def space_available
-		spaceTaken = 0
-		#add up the size of all items inside player's inventory
-		for i in @inventory
-			spaceTaken = spaceTaken + i.size
-		end #for
-		#return the difference between what's carried and the max capacity
-		return @capacity - spaceTaken
-	end #space_available
-
-end #End of Player
-
-class Thing
-	attr_accessor( :description, :name )
-	
-	@@thingCount = 0
-	
-	def initialize( aName, aDescription )
-		@name = aName
-		@description = aDescription
-		
-		@@thingCount += 1
-		@id = @@thingCount
-	end
-end #End of Thing
-
-class Creature < Thing
-	attr_accessor( :health, :attack, :defense, :loot, :static, :hostile, :location)
-	
-	#Health, attack & defense are all ints; loot is an array of items; static & hostile are boolean
-	#location is an int that corresponds with the index location in $maps.rooms that corresponds to the
-	#room in which the creature is
-	def initialize(aName, aDescription, health, attack, defense, loot, static, hostile, location)
-		super(aName, aDescription)
-		
-		@health = health
-		@attack = attack
-		@defense = defense
-		@loot = loot
-		@static = static
-		@hostile = hostile
-		@location = location
-		
-	end
-	
-	#Act is run for each creature at each pass to determine its actions
-	def act
-		#If the creature is hostile and the player is in the same room, it will attack the player
-		if hostile and $currentRoom == location
-			attack
-		#The Second thing a creature can do is move. If it is not static, it has a 50%
-		#chance of moving to another adjacent room		
-		elsif !@static
-			if ((rand(100)+1)>50)
-				move
-			end
-		end
-	end
-	
-	#The creature's attack method
-	def attack
-		puts("#{@name} attacks you!")
-	end
-	
-	#The creature's move method!
-	def move
-		exits = []
-		#Determine which exits are available. Build an array of possible exits
-		if $map.rooms[@location].north.to_i > -1 then exits << "north" end
-		if $map.rooms[@location].northeast.to_i > -1 then exits << "northeast" end
-		if $map.rooms[@location].east.to_i > -1 then exits << "east" end
-		if $map.rooms[@location].southeast.to_i > -1 then exits << "southeast" end
-		if $map.rooms[@location].south.to_i > -1 then exits << "south" end
-		if $map.rooms[@location].southwest.to_i > -1 then exits << "southwest" end
-		if $map.rooms[@location].west.to_i > -1 then exits << "west" end
-		if $map.rooms[@location].northwest.to_i > -1 then exits << "northwest" end
-		if $map.rooms[@location].up.to_i > -1 then exits << "up" end
-		if $map.rooms[@location].down.to_i > -1 then exits << "down" end
-		
-		#Randomly choose one exit
-		if exits.length > 0 then moved = true end
-		r = rand(exits.length)
-		
-		#If the creature started in the same room as the player, tell the player about the move
-		if @location == $currentRoom then
-			puts("#{@name} leaves to the #{exits[r]}.")
-		end
-		#Set the creature's location to the chose exit's target location
-		case( exits[r] )
-			when "north" then @location = $map.rooms[@location].north
-			when "northeast" then @location = $map.rooms[@location].northeast
-			when "east" then @location = $map.rooms[@location].east
-			when "southeast" then @location = $map.rooms[@location].southeast
-			when "south" then @location = $map.rooms[@location].south
-			when "southwest" then @location = $map.rooms[@location].southwest
-			when "west" then @location = $map.rooms[@location].west
-			when "northwest" then @location = $map.rooms[@location].northwest
-			when "up" then @location = $map.rooms[@location].up
-			when "down" then @location = $map.rooms[@location].down
-		end
-		#If the creature arrives in the same room as the player, tell the player
-		if @location == $currentRoom then
-			puts("#{@name} arrives.")
-		end	
-	end
-end #Creature
-class Item < Thing
-	attr_accessor( :weight, :size, :durability, :capacity, :contents, :static, :light)
-	
-	#Name & Description are obvious. Weight, size, capacity, and durability will come into play
-	#later. Static is boolean. True means it is part of the background and cannot be
-	#picked up or moved, and is also not listed with non-static items under the room
-	#description. Light is boolean and indicates whether the item is a source of light
-	def initialize( aName, aDescription, weight, size, durability, capacity, contents, static, light)
-		super( aName, aDescription )
-		
-		@weight = weight
-		@size = size
-		@durability = durability
-		@capacity = capacity
-		@contents = contents
-		@static = static
-		@light = light
-		@currentDurability
-		@broken = false
-	end
-	
-	#Function to damage items
-	def damage( damage )
-		@currentDurability -= damage
-		outputString = "#{@name} takes #{damage} points of damage!"
-		if @currentDurability < 1
-			@broken = true
-			outputString = outputString + "#{@name} is broken!"
-		end
-		return outputString
-	end #damage()
-	
-	#Function to repair items
-	def repair(num)
-		outputString = ""
-		if @currentDurability >= @durability
-			return "#{@name} is not damaged!"
-		end
-		@currentDurability = @currentDurability + num
-		if @currentDurability > @durability
-			@currentDurability = @durability
-		end
-		return "#{@name} is repaired by #{num} points"
-	end #repair()
-	
-	def space_available
-		spaceTaken = 0
-		#add up the size of all items inside
-		for i in @contents
-			spaceTaken = spaceTaken + i.size
-		end #for
-		return @capacity - spaceTaken
-	end #space_available
-	
-	def description
-		outputString = @description + "\n\n"
-		
-		#if the item contains other items, list them
-		if @contents.length > 0
-			outputString = outputString + "Items inside the #{@name}: "
-			for i in @contents
-				outputString = outputString + i.name
-				if i != contents.last() then outputString = outputString + ", " end
-			end #for 
-			outputString = outputString + "\n\n"
-		end #if
-		return outputString
-	end #description()
-end #End of Item
-
-class Room < Thing
-	attr_accessor( :north, :northeast, :east, :southeast, :south, :southwest, :west, :northwest, :up, :down )
-	attr_accessor( :light, :items )
-	
-	#initialize room object. aName & aDescription are strings. Directions are string value
-	#showing the target room for that direction. A value of -1 indicates no exit in 
-	#that direction. aLight is boolean indicating whether the room has natural lighting
-	def initialize( aName, aDescription, n, ne, e, se, s, sw, w, nw, u, d, aLight, someItems )
-		super( aName, aDescription )
-		@north = n
-		@northeast = ne
-		@east = e
-		@southeast = se
-		@south = s
-		@southwest = sw
-		@west = w
-		@northwest = nw
-		@up = u
-		@down = d
-		@light = aLight
-		@items = someItems
-	end
-	
-	def description
-		#First, determine if there is enough light to see
-		#Is the player carrying any light emitting objects?
-		#Start with playerLight false, then cycle through each item. If even on item is
-		#a light source, change to true
-		playerLight = false
-		for i in $player.inventory
-			if i.light == true then playerLight = true end
-		end #for
-		
-		#are there any items laying on the ground that are sources of light?
-		itemLight = false
-		for i in $map.rooms[$currentRoom].items
-			if i.light == true then itemLight = true end
-		end #for
-		
-		if @light == false and playerLight == false and itemLight == false
-			return "It is too dark here for you to see anything."
-		end #if
-		
-		#build outputString by removing any control characters from the end of @description
-		@outputString = @description.chomp 
-		#add items, if any
-		#build an array of all non-static items
-		nonStaticItems = []
-		for i in @items
-			if !i.static
-				nonStaticItems << i
-			end #if
-		end #for
-		if nonStaticItems.length > 0
-			@outputString = @outputString + "\n\nItems here: "
-			for i in nonStaticItems
-				@outputString = @outputString + i.name
-				if i != nonStaticItems.last
-					@outputString = @outputString + ", "
-				end #if
-			end #for
-			@outputString = @outputString
-		end #if
-		#and add exits.
-		@outputString =  @outputString + "\n\nObvious Exits: "
-		if @north != -1
-			@outputString = @outputString + "North"
-		end
-		
-		#if preceding direction is true, offset with comma
-		if @northeast != -1 and @north != -1
-			@outputString = @outputString + ", Northeast"
-		elsif @northeast != -1 #if preceding direction is not true, do not add comma
-			@outputString = @outputString + "Northeast"
-		end
-		
-		if @north != -1 or @northeast != -1 and @east != -1
-			@outputString = @outputString + ", East"
-		elsif @east != -1
-			@outputString = @outputString + "East"
-		end
-		
-		if @north != -1 or @northeast != -1 or @east != -1 and @southeast != -1
-			@outputString = @outputString + ", Southeast"
-		elsif @southeast != -1
-			@outputString = "Southeast"
-		end
-		
-		if @north != -1 or @northeast != -1 or @east != -1 or @southeast != -1 and @south != -1
-			@outputString = @outputString + ", South"
-		elsif @south != -1
-			@outputString = @outputString + "South"
-		end
-		#
-		if @north != -1 or @northeast != -1 or @east != -1 or @southeast != -1 or @south != -1 and @southwest != -1
-			@outputString = @outputString + ", Southwest"
-		elsif @southwest != -1
-			@outputString = @outputString + "Southwest"
-		end
-		
-		if @north != -1 or @northeast!= -1 or @east!= -1 or @southeast!= -1 or @south!= -1 or @southwest!= -1 and @west!= -1
-			@outputString = @outputString + ", West"
-		elsif @west!= -1
-			@outputString = @outputString + "West"
-		end
-		
-		if @north!= -1 or @northeast!= -1 or @east!= -1 or @southeast!= -1 or @south!= -1 or @southwest!= -1 or @west!= -1 and @northwest!= -1
-			@outputString = @outputString + ", Northwest"
-		elsif @northwest!= -1
-			@outputString = @outputString + "Northwest"
-		end
-
-		if @north!= -1 or @northeast!= -1 or @east!= -1 or @southeast!= -1 or @south!= -1 or @southwest!= -1 or @west!= -1 or @northwest!= -1 and @up != -1
-			@outputString = @outputString + ", Up"
-		elsif @up!= -1
-			@outputString = @outputString + "Up"
-		end
-
-		if @north!= -1 or @northeast!= -1 or @east!= -1 or @southeast!= -1 or @south!= -1 or @southwest!= -1 or @west!= -1 or @northwest!= -1 or @up != -1 and @down != -1
-			@outputString = @outputString + ", Down"
-		elsif @down != -1
-			@outputString = @outputString + "Down"
-		end
-					
-		if @north==-1 and @northeast==-1 and @east==-1 and @southeast==-1 and @south==-1 and @southwest==-1 and @west==-1 and @northwest==-1 and @up==-1 and @down==-1
-			@outputString = @outputString + "None"
-		end
-		
-		return @outputString
-	end #End of Room.description
-end #End of Room
-
-class Map < Thing
-	attr_accessor( :rooms )
-	
-	def initialize( someRooms )
-		@rooms = someRooms
-	end
-end #end of Map
-
-#Population class will act as a container for all of the creatures in the game
-class Population
-	attr_accessor( :creatures )
-	
-	def initialize( someCreatures )
-		@creatures = someCreatures
-	end
-end
-
+#methods within the main scope: go, examine, pickup, drop, insert, remove, look, parse
 def go(inputArr)
 	if inputArr.include?("north") or inputArr.include?("n") 
 		if $map.rooms[$currentRoom].north == -1
@@ -791,68 +417,71 @@ def parse(input)
 	#make sure length is not zero
 	if inputArr.length < 1
 		puts("Please enter a command\n")
-	#check for directional keywords (I know this is ugly)
-	#TODO: Convert this to a case switch to clean it up
-	elsif (inputArr.include?("go") or inputArr.include?("north") or inputArr.include?("n") or inputArr.include?("northeast") or inputArr.include?("ne") or inputArr.include?("east") or inputArr.include?("e") or inputArr.include?("southeast") or inputArr.include?("se") or inputArr.include?("south") or inputArr.include?("s") or inputArr.include?("southwest") or inputArr.include?("sw") or inputArr.include?("west") or inputArr.include?("w") or inputArr.include?("northwest") or inputArr.include?("nw") or inputArr.include?("up") or inputArr.include?("u") or inputArr.include?("down") or inputArr.include?("d")) then
-		if go(inputArr)
-			puts("\n")
-			return true
-		else
-			puts("You cannot go that way.\n")
-			return false
-		end
-	#describe the room again if asked to
-	elsif inputArr.include?("look")
-		look
-		return false
-	elsif inputArr.include?("examine")
-		examine(inputArr[1])
-		return false
-	elsif inputArr.include?("get")
-		pickup(inputArr)
-		return false
-	elsif inputArr.include?("drop")
-		drop(inputArr)
-		return false
-	elsif inputArr.include?("put")
-		insert(inputArr)
-		return false
-	elsif inputArr.include?("remove")
-		remove(inputArr)
-		return false
-	elsif inputArr.include?("inventory") or inputArr.include?("i")
-		puts("\nYou are carrying:")
-		for i in $player.inventory
-			puts(i.name)
-		end #for
-		puts("Inventory space left: #{$player.space_available}")
-		return false
-	else
-		puts("I don't understand you.\n")
-		return false
+		return
 	end
-	return false
+	#check for directional keywords (I know this is ugly)
+	input = case 
+		when $directions.include?(inputArr[0])
+			if go(inputArr)
+				puts("\n")
+				return true
+			else
+				puts("You cannot go that way.\n")
+				return false
+			end
+		#describe the room again if asked to
+		when inputArr.include?("look")
+			look
+			return false
+		when inputArr.include?("examine")
+			examine(inputArr[1])
+			return false
+		when inputArr.include?("get")
+			pickup(inputArr)
+			return false
+		when inputArr.include?("drop")
+			drop(inputArr)
+			return false
+		when inputArr.include?("put")
+			insert(inputArr)
+			return false
+		when inputArr.include?("remove")
+			remove(inputArr)
+			return false
+		when inputArr.include?("inventory"), inputArr.include?("i")
+			puts("\nYou are carrying:")
+			for i in $player.inventory
+				puts(i.name)
+			end #for
+			puts("Inventory space left: #{$player.space_available}")
+			return false
+		else puts("I don't understand you.\n")
+			return false
+	end
 end #end of parse()
+
+#An array of recognized directions
+$directions = ["go", "north", "n", "northeast", "ne", "east", "e", "southeast", "se", "south", "s", "southwest", "sw", "west", "w", "northwest", "nw", "up","u","down","d"]
 
 #build items ( aName, aDescription, weight, size, durability, capacity, contents, static, light)
 puts("Building game items")
-item1 = Item.new("Cup", "A golden cup encrusted in jewels", 1, 1, 5, 0, [], false, false)
+$item1 = Item.new("Cup", "A golden cup encrusted in jewels", 1, 1, 5, 0, [], false, false)
 $item2 = Item.new("Gem", "A brilliant green gem, finely cut", 1, 1, 10, 0, [], false, false)
-item3 = Item.new("Rock", "A small, smooth stone", 1, 1, 10, 0, [], false, false)
-item4 = Item.new("Staff", "Your trusty walking stick, worn smooth from years of use", 3, 2, 5, 0, [], false, false)
-item9 = Item.new("Coin", "A small gold coin", 1, 1, 5, 0, [], false, false)
-item5 = Item.new("Fountain", "A small fountain bubbles quietly in the center of the room", 100, 10, 100, 3, [item9], true, false)
-item6 = Item.new("Torch", "A torch that flickers gently", 1, 1, 1, 0, [], false, true)
-item7 = Item.new("Bag", "A large cloth sack, good for carrying things.", 2, 5, 10, 10, [], false, false)
-item10 = Item.new("Boulder","An enormous stone", 30, 30, 100, 0, [], false, false)
+$item3 = Item.new("Rock", "A small, smooth stone", 1, 1, 10, 0, [], false, false)
+$item4 = Item.new("Staff", "Your trusty walking stick, worn smooth from years of use", 3, 2, 5, 0, [], false, false)
+$item9 = Item.new("Coin", "A small gold coin", 1, 1, 5, 0, [], false, false)
+$item5 = Item.new("Fountain", "A small fountain bubbles quietly in the center of the room", 100, 10, 100, 3, [$item9], true, false)
+$item6 = Item.new("Torch", "A torch that flickers gently", 1, 1, 1, 0, [], false, true)
+$item7 = Item.new("Bag", "A large cloth sack, good for carrying things.", 2, 5, 10, 10, [], false, false)
+$item10 = Item.new("Boulder","An enormous stone", 30, 30, 100, 0, [], false, false)
 
 
 #build the rooms ( aName, aDescription, n, ne, e, se, s, sw, w, nw, u, d, aLight, someItems )
 puts("Building Rooms")
-room0 = Room.new("room0", "You are in the entryway to the labynth. The tunnel to the south that leads to the surface has collapsed, but the passageway continues to the north. \nThere is a fountain here.", 1,-1,-1,-1,-1,-1,-1,-1,-1,-1,true,[item5, item1, item10])
-room1 = Room.new("room1", "This is the second room.", -1,-1,2,-1,0,-1,3,-1,-1,-1,true,[$item2, item3])
-room2 = Room.new("room2", "This small side chamber smells of mildew and rot.",-1,-1,-1,-1,-1,-1,1,-1,-1,-1,true,[item6])
-room3 = Room.new("room3", "There is a scary monster in here!", -1,-1,1,-1,-1,-1,-1,-1,-1,-1, false, [item7])
+room0 = Room.new("room0", "You are in the entryway to the labynth. The tunnel to the south that leads to the surface has collapsed, but the passageway continues to the north. \nThere is a fountain here.", 1,-1,-1,-1,-1,-1,-1,-1,-1,-1,true,[$item5, $item1, $item10])
+room1 = Room.new("room1", "This is the second room.", -1,-1,2,-1,0,-1,3,-1,-1,-1,true,[$item2, $item3])
+room2 = Room.new("room2", "This small side chamber smells of mildew and rot.",-1,-1,-1,-1,-1,-1,1,-1,-1,-1,true,[$item6])
+room3 = Room.new("room3", "There is a scary monster in here!", -1,-1,1,-1,-1,-1,-1,-1,-1,-1, false, [$item7])
 room4 = Room.new("room4", "This is a secret room!", -1, -1, 0, -1, -1, -1, -1, -1, -1, -1, true, [])
 
 #build the map
@@ -882,7 +511,7 @@ while playerName.chomp().length < 1
 	puts("You must enter a name to continue")
 	playerName = gets()
 end
-$player = Player.new(playerName.chomp(), [item4])
+$player = Player.new(playerName.chomp(), [$item4], 100, 10, 10)
 
 welcomeText = <<EODOC
 Welcome, #{$player.name}, to Dan's Adventure Game!
