@@ -24,7 +24,7 @@ class Room < Thing
 	def description
 		#First, determine if there is enough light to see
 		#Is the player carrying any light emitting objects?
-		#Start with playerLight false, then cycle through each item. If even on item is
+		#Start with playerLight false, then cycle through each item. If even one item is
 		#a light source, change to true
 		playerLight = false
 		for i in $player.inventory
@@ -42,7 +42,8 @@ class Room < Thing
 		end #if
 		
 		#build outputString by removing any control characters from the end of @description
-		@outputString = @description.chomp 
+		@outputString = "---------------------------------------------\n#{@name}\n"
+		@outputString = @outputString + @description.chomp 
 		#add items, if any
 		#build an array of all non-static items
 		nonStaticItems = []

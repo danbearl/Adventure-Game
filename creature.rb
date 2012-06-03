@@ -34,6 +34,35 @@ class Creature < Thing
 	#The creature's attack method
 	def attack
 		puts("#{@name} attacks you!")
+		hitStrength = 2* (rand(@attack))
+		$player.hit(hitStrength)
+	end
+	
+	def hit( attackValue )
+		if !@hostile then @hostile = true end
+		if attackValue > @defense
+			puts("The attack hits for #{attackValue - @defense} points of damage!")
+			damage(attackValue - @defense)
+		elsif
+			puts("The attack misses!")
+		end
+	end
+	
+	
+	def damage(dmg)
+		@health = @health - dmg
+		if @health < 1
+			puts("You kill the #{name}!")
+			
+			#dump all of the creature's loot into the room
+			if @loot.length > 0
+				for i in @loot
+					puts("The #{name} drops a #{i.name}!")
+					$map.rooms[@location].items << i
+				end
+			end
+			@location = 0
+		end
 	end
 	
 	#The creature's move method!

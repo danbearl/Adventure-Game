@@ -1,11 +1,11 @@
 class Item < Thing
-	attr_accessor( :weight, :size, :durability, :capacity, :contents, :static, :light)
+	attr_accessor( :weight, :size, :durability, :attack, :defense, :capacity, :contents, :static, :light)
 	
 	#Name & Description are obvious. Weight, size, capacity, and durability will come into play
 	#later. Static is boolean. True means it is part of the background and cannot be
 	#picked up or moved, and is also not listed with non-static items under the room
 	#description. Light is boolean and indicates whether the item is a source of light
-	def initialize( aName, aDescription, weight, size, durability, capacity, contents, static, light)
+	def initialize( aName, aDescription, weight, size, durability, attack, defense, capacity, contents, static, light)
 		super( aName, aDescription )
 		
 		@weight = weight
@@ -17,6 +17,8 @@ class Item < Thing
 		@light = light
 		@currentDurability
 		@broken = false
+		@attack = attack
+		@defense = defense
 	end
 	
 	#Function to damage items

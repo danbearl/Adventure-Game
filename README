@@ -1,0 +1,45 @@
+Dan's Adventure Game v0.3a
+
+This text-based adventure game is my personal exercise for learning how to code in Ruby. As of now it is only a five-room
+dungeon that tests various functions. Once I'm happy that the game has all of the functionality I want, I'll flesh it
+out into a full dungeon and will progress its version to 1.0. Then I will increase functionality incrementally.
+
+To run: First download and install Ruby on your local machine (http://www.ruby-lang.org/en/downloads/). Then download all
+.rb files in this repository and from a command line type 'ruby adventure.rb' (without quotes, of course).
+
+How to play:
+This is a text-based adventure game. You are an adventurer exploring a dungeon, which is described to you, room by room
+in a text format. You interact with the game by typing commands and pressing enter when prompted. 
+Valid commands and their formats:
+
+go [direction] : move in the direction indicated
+[direction] : move in the direction indicated
+
+inventory : show your current inventory
+i: show your current inventory
+
+look : describe the current room
+
+get [item] : move an item from the current room into your inventory
+get all: move all items from the current room into your inventory
+
+drop [item] : move an item from your inventory into the current room
+drop all : move all items from your inventory into the current room
+
+wield [item] : start using an item as your weapon
+wear [item] : start using an item as your armor
+
+attack [creature] : attack a creature in the same room as you
+
+put [item] in [item] : put an item from your inventory inside of another item, either in the current room or in your inventory
+
+remove [item] from [item] : remove an item from another item and place it in your inventory
+
+examine [item] : show a detailed description of the item
+
+quit : exit the game
+
+Any feedback is welcome! 
+
+-Dan Bearl
+dan.bearl@gmail.com
