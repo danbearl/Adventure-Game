@@ -7,6 +7,7 @@ out into a full dungeon and will progress its version to 1.0. Then I will increa
 To run: First download and install Ruby on your local machine (http://www.ruby-lang.org/en/downloads/). Then download all
 .rb files in this repository and from a command line type 'ruby adventure.rb' (without quotes, of course).
 
+
 How to play:
 This is a text-based adventure game. You are an adventurer exploring a dungeon, which is described to you, room by room
 in a text format. You interact with the game by typing commands and pressing enter when prompted. 
@@ -38,6 +39,7 @@ remove [item] from [item] : remove an item from another item and place it in you
 examine [item] : show a detailed description of the item
 
 quit : exit the game
+
 
 Any feedback is welcome! 
 
