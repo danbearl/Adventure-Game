@@ -1,17 +1,15 @@
-Dan's Adventure Game v0.3a
+Dan's Adventure Game v0.4a
 
-This text-based adventure game is my personal exercise for learning how to code in Ruby. As of now it is only a five-room
-dungeon that tests various functions. Once I'm happy that the game has all of the functionality I want, I'll flesh it
-out into a full dungeon and will progress its version to 1.0. Then I will increase functionality incrementally.
+This text-based adventure game is my personal exercise for learning how to code in Ruby. As of now it is only a five-room dungeon that tests various functions. Once I'm happy that the game has all of the functionality I want, I'll flesh it out into a full dungeon and will progress its version to 1.0. Then I will increase functionality incrementally.
 
-To run: First download and install Ruby on your local machine (http://www.ruby-lang.org/en/downloads/). Then download all
-.rb files in this repository and from a command line type 'ruby adventure.rb' (without quotes, of course).
+To run: First download and install Ruby on your local machine (http://www.ruby-lang.org/en/downloads/). Then download all .rb files in this repository and from a command line type 'ruby adventure.rb' (without quotes, of course).
 
 
 How to play:
-This is a text-based adventure game. You are an adventurer exploring a dungeon, which is described to you, room by room
-in a text format. You interact with the game by typing commands and pressing enter when prompted. 
+This is a text-based adventure game. You are an adventurer exploring a dungeon, which is described to you, room by room in a text format. You interact with the game by typing commands and pressing enter when prompted. 
 Valid commands and their formats:
+
+help : displays list of valid commands
 
 go [direction] : move in the direction indicated
 [direction] : move in the direction indicated
@@ -38,8 +36,25 @@ remove [item] from [item] : remove an item from another item and place it in you
 
 examine [item] : show a detailed description of the item
 
+open [item] : opens a container item, allowing access to items contained within it
+
+close [item] : close an open container item, hiding its contents
+
+lock [item] with [item] : lock a container using the appropriate key item so that it cannot be opened until unlocked
+
+refuel [item] with [item] : refuel a light source using the appropriate fuel type
+
+light [item] : turn on a light source
+
+extinguish [item] : turn off a light source
+
+eat [item] : consume a food item
+
+read [item] : read the contents of a readable item (books, scrolls, etc.)
+
 quit : exit the game
 
+The core functionality of the game is nearly complete, so next I will work on completing the dungeon to make it a fully playable game.
 
 Any feedback is welcome! 
 
