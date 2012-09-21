@@ -1,5 +1,6 @@
 class Thing
 	attr_accessor( :description, :name )
+	attr_reader( :id )
 	
 	@@thingCount = 0
 	

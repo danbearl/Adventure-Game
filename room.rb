@@ -28,13 +28,17 @@ class Room < Thing
 		#a light source, change to true
 		playerLight = false
 		for i in $player.inventory
-			if i.light == true then playerLight = true end
+			if i.class == Light then
+				if i.isLit then playerLight = true end
+			end
 		end #for
 		
 		#are there any items laying on the ground that are sources of light?
 		itemLight = false
 		for i in $map.rooms[$currentRoom].items
-			if i.light == true then itemLight = true end
+			if i.class == Light then
+				if i.isLit then itemLight = true end
+			end
 		end #for
 		
 		if @light == false and playerLight == false and itemLight == false

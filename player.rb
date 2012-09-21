@@ -1,5 +1,5 @@
 class Player
-	attr_accessor( :name, :inventory, :weapon, :armor, :health, :attack, :defense, :maxHealth)
+	attr_accessor( :name, :inventory, :weapon, :armor, :health, :attack, :defense, :maxHealth, :hunger, :seen)
 	
 	def initialize( aName, someItems, weapon, armor, health, attack, defense )
 		@name = aName
@@ -11,6 +11,8 @@ class Player
 		@maxHealth = health
 		@weapon = weapon
 		@armor = armor
+		@hunger = 100
+		@seen = [] #An array that holds the ID of all things that can be seen by the player
 	end
 	
 	#a method to determine how much more the player can carry
@@ -45,6 +47,16 @@ class Player
 		@health += dmg
 		if @health > @maxHealth then @health = @maxHealth end
 		puts("You are healed for #{dmg} points!")
+	end
+	
+	def show_inventory
+			puts("\nYou are carrying:")
+			for i in $player.inventory
+				puts(i.name)
+			end #for
+			puts("Weapon: #{$player.weapon.name}\n")
+			puts("Armor: #{$player.armor.name}\n")
+			puts("Inventory space left: #{$player.space_available}")
 	end
 	
 	def attack(target)
